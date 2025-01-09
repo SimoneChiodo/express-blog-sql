@@ -15,8 +15,7 @@ function index(req, res) {
 
     // Effettuo la query
     connection.query(sql, (err, results) => {
-        console.log(results);
-
+        // Restituisco il risultato
         res.type("json").send(results);
     });
 }
@@ -150,19 +149,25 @@ function modify(req, res) {
 // Metodo: Destroy (Eliminare un elemento)
 function destroy(req, res) {
     const id = parseInt(req.params.id);
-    if (checkID(res, posts, id) === false) return;
+    // if (checkID(res, posts, id) === false) return;
 
-    // Trovo l'indice dell'id da eliminare
-    let indexToDelete = 0;
-    posts.map((post, index) => {
-        if (post.id === id) indexToDelete = index;
+    // Creo la query SQL
+    const sql = "DELETE FROM `posts` WHERE id = ?";
+
+    // Effettuo la query
+    connection.query(sql, [id], (err, results) => {
+        // Controllo se ci sono errori
+        if (err) {
+            console.log(err);
+
+            return res
+                .status(500)
+                .type("json")
+                .send({ error: "Failed to delete post" });
+        }
+
+        res.status(204).send();
     });
-
-    // Elimino il post
-    posts.splice(indexToDelete, 1);
-
-    res.status(204).send();
-    // res.type("json").send(posts);
 }
 
 //Funzione per controllare gli ID (restituisce un messaggio di errore diverso per ogni casistica)
