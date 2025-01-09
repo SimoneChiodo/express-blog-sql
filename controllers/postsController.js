@@ -10,44 +10,15 @@ const posts = require("../data/posts");
 // METODI CRUD
 // Metodo: Index (Visualizzare tutti gli elementi)
 function index(req, res) {
-    const tag = req.query.tag;
-    let output;
+    // Creo la query SQL
+    const sql = "SELECT * FROM `posts`";
 
-    // =====================
-    //      TEST-ERROR
-    // =====================
-    // pippo.getData();
-    //
-    // const err = Error("Error occurred");
-    // err.code = 404;
-    // throw err;
+    // Effettuo la query
+    connection.query(sql, (err, results) => {
+        console.log(results);
 
-    //Se non ho passato parametri
-    if (!tag) {
-        res.type("json").send(posts);
-        return;
-    }
-
-    // Se ho passato tag come parametri
-    // Se ho solo 1 tag
-    if (!Array.isArray(tag)) {
-        output = posts.filter((post) =>
-            post.tag
-                .map((currentTag) => currentTag.toLowerCase())
-                .includes(tag.toLowerCase())
-        );
-    }
-    //Se ho + tag
-    else
-        output = posts.filter((post) =>
-            tag.every((currentTag) =>
-                post.tag
-                    .map((post) => post.toLowerCase())
-                    .includes(currentTag.toLowerCase())
-            )
-        );
-
-    res.type("json").send(output);
+        res.type("json").send(results);
+    });
 }
 
 // Metodo: Show (Visualizzare un elemento)
