@@ -26,10 +26,17 @@ function show(req, res) {
     // if (checkID(res, posts, id) === false) return;
 
     // Creo la query SQL
-    const sql = "SELECT * FROM `posts` WHERE `posts`.`id` = ?";
+    const sqlPost = "SELECT * FROM `posts` WHERE `posts`.`id` = ?";
+    const sqlTags = `SELECT t.label
+    FROM posts AS p
+    JOIN post_tag AS p_t
+    ON p.id = p_t.post_id
+    JOIN tags AS t
+    ON p_t.tag_id = t.id
+    WHERE p.id = 1;`;
 
     // Effettuo la query
-    connection.query(sql, [id], (err, results) => {
+    connection.query(sqlPost, [id], (err, results) => {
         // Controllo se ci sono errori
         if (err) {
             console.log(err);
@@ -48,8 +55,27 @@ function show(req, res) {
                 .send({ error: "Post not found" });
         }
 
-        // Restituisco il risultato
-        res.type("json").send(results);
+        // Salvo temporaneamente il post
+        let post = results[0];
+
+        //Effettuo la query per ottenere i tags
+        connection.query(sqlTags, [id], (err, tagsResults) => {
+            // Controllo se ci sono errori
+            if (err) {
+                console.log(err);
+
+                return res
+                    .status(500)
+                    .type("json")
+                    .send({ error: "Failed to show post" });
+            }
+
+            //Aggiungo i tag del post
+            post.tags = tagsResults;
+
+            // Restituisco il risultato
+            res.type("json").send(results);
+        });
     });
 }
 
