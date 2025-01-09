@@ -23,10 +23,33 @@ function index(req, res) {
 // Metodo: Show (Visualizzare un elemento)
 function show(req, res) {
     const id = parseInt(req.params.id);
-    if (checkID(res, posts, id) === false) return;
+    // if (checkID(res, posts, id) === false) return;
 
-    res.json({
-        post: posts.find((post) => post.id === id),
+    // Creo la query SQL
+    const sql = "SELECT * FROM `posts` WHERE `posts`.`id` = ?";
+
+    // Effettuo la query
+    connection.query(sql, [id], (err, results) => {
+        // Controllo se ci sono errori
+        if (err) {
+            console.log(err);
+
+            return res
+                .status(500)
+                .type("json")
+                .send({ error: "Failed to show post" });
+        }
+
+        // Controllo se ho trovato il post
+        if (results.length === 0) {
+            return res
+                .status(500)
+                .type("json")
+                .send({ error: "Post not found" });
+        }
+
+        // Restituisco il risultato
+        res.type("json").send(results);
     });
 }
 
