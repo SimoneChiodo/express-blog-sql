@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
+// Importo la connessione al database SQL
+const connection = require("../db/conn");
+
 // Importo i post
 const posts = require("../data/posts");
 
